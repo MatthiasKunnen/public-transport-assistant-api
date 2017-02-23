@@ -89,7 +89,7 @@ function subscribeToTripStop($notification)
     global $mysqli;
 
     if ($stmt = $mysqli->prepare('INSERT INTO notification (trip_stop_id, registration_id) VALUES (?, ?)')) {
-        $stmt->bind_param($notification->getTripStop()->getId(), $notification->getRegistrationId());
+        $stmt->bind_param('ss', $notification->getTripStop()->getId(), $notification->getRegistrationId());
         $stmt->execute();
     }
 }
