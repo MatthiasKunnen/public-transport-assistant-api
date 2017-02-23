@@ -57,3 +57,16 @@ function checkVariableExistence($variables)
 
     return true;
 }
+
+/**
+ * Dies with a HTTP 500 and JSON error message.
+ */
+function serverErrorOccurred()
+{
+    stop(500, json_encode(array(
+        'error' => array(
+            'code' => '500',
+            'message' => 'Server error. If this error persists, please contact info@sd4u.be.',
+        )
+    )));
+}

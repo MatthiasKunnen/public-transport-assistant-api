@@ -1,5 +1,6 @@
 <?php
 
+use PTA\Models\Notification;
 use PTA\Models\Route;
 use PTA\Models\RouteStop;
 use PTA\Models\Stop;
@@ -56,5 +57,39 @@ ORDER BY rs.sequence')
     } else {
         error_log("MySQL error($mysqli->errno) occurred: $mysqli->error");
         throw new Exception("MySQL error occurred: $mysqli->error", $mysqli->errno);
+    }
+}
+
+function getTripStopById($id)
+{
+    global $mysqli;
+    if ($stmt = $mysqli->prepare('SELECT ts.arrived_on FROM trip_stop ts WHERE ts.id = ?')) {
+        $stmt->bind_param('i', $id);
+        $stmt->execute();
+        $stmt->store_result();
+        $stmt->bind_result($arrivedOn);
+        if ($stmt->fetch() === null) {
+            return null;
+        }
+        return TripStop::create()
+            ->setId($id)
+            ->setArrivedOn($arrivedOn);
+    } else {
+        error_log("MySQL error($mysqli->errno) occurred: $mysqli->error");
+        throw new Exception("MySQL error occurred: $mysqli->error", $mysqli->errno);
+    }
+}
+
+/**
+ * Subscribe device to notification upon vehicle arriving at stop.
+ * @param Notification $notification
+ */
+function subscribeToTripStop($notification)
+{
+    global $mysqli;
+
+    if ($stmt = $mysqli->prepare('INSERT INTO notification (trip_stop_id, registration_id) VALUES (?, ?)')) {
+        $stmt->bind_param($notification->getTripStop()->getId(), $notification->getRegistrationId());
+        $stmt->execute();
     }
 }
