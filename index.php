@@ -35,6 +35,7 @@ switch ($action) {
                 'subscriptionId' => $tripStop->getId(),
                 'stopName' => $tripStop->getRouteStop()->getStop()->getName(),
                 'stopPlace' => $tripStop->getRouteStop()->getStop()->getPlace(),
+                'routeName' => $tripStop->getRouteStop()->getRoute()->getName(),
             );
         }
 
