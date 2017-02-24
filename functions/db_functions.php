@@ -142,7 +142,9 @@ function setTripStopArrivedOn($tripStopId, $arrivedOn)
 {
     global $mysqli;
 
-    if ($stmt = $mysqli->prepare('UPDATE trip_stop ts SET ts.arrived_on = ? WHERE ts.id = ?')) {
+    if ($stmt = $mysqli->prepare('UPDATE trip_stop ts SET ts.arrived_on = ?
+  WHERE ts.id = ? AND ts.arrived_on IS NULL')
+    ) {
         $stmt->bind_param('si', $arrivedOn->format('Y-m-d H:i:s'), $tripStopId);
         $stmt->execute();
     }
