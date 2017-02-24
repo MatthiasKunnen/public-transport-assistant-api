@@ -8,6 +8,7 @@ require __DIR__ . '/functions/functions.php';
 require __DIR__ . '/functions/autoload.php';
 
 $action = getVariable('action');
+$now = new DateTime('now', new DateTimeZone('GMT'));
 
 switch ($action) {
     case 'get_stops':
@@ -101,6 +102,51 @@ switch ($action) {
         } catch (Exception $ex) {
             serverErrorOccurred();
         }
+
+        break;
+    case 'vehicle_arriving':
+        require __DIR__ . '/functions/db_functions.php';
+        if (!checkVariableExistence(array('stopId', 'vehicleId'))) {
+            stop(404, json_encode(array(
+                'error' => array(
+                    'code' => '404',
+                    'message' => "Required parameters: 'stopId' and 'vehicleId'",
+                ),
+            )));
+        }
+
+        $stopId = getVariable('stopId');
+        $vehicleId = getVariable('vehicleId');
+
+        try {
+            $tripStop = getTripStop($stopId, $vehicleId);
+        } catch (Exception $ex) {
+            $tripStop = null;
+            serverErrorOccurred();
+        }
+
+        if ($tripStop == null) {
+            stop(404, json_encode(array(
+                'error' => array(
+                    'code' => '404',
+                    'message' => 'Trip stop not found.',
+                ),
+            )));
+        }
+
+        try {
+            setTripStopArrivedOn($tripStop->getId(), $now);
+        } catch (Exception $ex) {
+            $tripStop = null;
+            serverErrorOccurred();
+        }
+
+        stop(200, json_encode(array(
+            'data' => array(
+                'code' => 200,
+                'message' => 'The arrival is successfully registered.',
+            ),
+        )));
 
         break;
     default:
